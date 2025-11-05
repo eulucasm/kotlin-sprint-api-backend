@@ -1,12 +1,13 @@
 package br.com.mercadolivro.service
 
-import br.com.mercadolivro.controller.request.PostCustomerRequest
-import br.com.mercadolivro.controller.request.PutCustomerRequest
 import br.com.mercadolivro.model.CustomerModel
+import br.com.mercadolivro.repository.CustomerRepository
 import org.springframework.stereotype.Service
 
 @Service
-class CustomerService {
+class CustomerService(
+    val customerRepository: CustomerRepository
+) {
 
     val customers = mutableListOf<CustomerModel>()
 
@@ -19,18 +20,12 @@ class CustomerService {
         return customers
     }
 
-    fun getCustomer(id: String): CustomerModel {
-        return customers.first { it.id == id }
+    fun getCustomer(id: Int): CustomerModel {
+        return customerRepository.findById(id).orElseThrow()
     }
 
     fun createCustomer(customer: CustomerModel) {
-        val id = if (customers.isEmpty()) {
-            "1"
-        } else {
-            customers.last().id!!.toInt() + 1
-        }.toString()
-        customer.id = id
-        customers.add(customer)
+        customerRepository.save(customer)
     }
 
     fun updateCustomer(customer: CustomerModel) {
@@ -40,7 +35,7 @@ class CustomerService {
         }
     }
 
-    fun deleteCustomer(id: String) {
+    fun deleteCustomer(id: Int) {
         customers.removeIf { it.id == id }
     }
 }
